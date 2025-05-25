@@ -1,0 +1,45 @@
+# Build results
+bin/
+obj/
+out/
+
+# NuGet Packages
+*.nupkg
+# Comente se você usar diretórios locais do NuGet
+# packages/
+project.lock.json
+project.fragment.lock.json
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Visual Studio
+.vs/
+.vssscc
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Rider (JetBrains)
+.idea/
+*.sln.iml
+
+# Configuração de build e IDE
+*.DotSettings.user
+*.DotSettings
+
+# Logs
+*.log
+
+# Configurações específicas de sistema operacional
+.DS_Store
+Thumbs.db
+
+# Arquivos temporários
+*.tmp
+~$*
+
+# Dependências locais e módulos de build
+Tools/
