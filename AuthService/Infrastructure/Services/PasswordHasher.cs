@@ -7,8 +7,8 @@ public class PasswordHasher : IPasswordHasher
         return BCrypt.Net.BCrypt.HashPassword(password);
     }
 
-    public bool VerifyHashedPassword(string hashedPassword, string providedPassword)
+    public bool VerifyPassword(string passwordHash, string password)
     {
-        return BCrypt.Net.BCrypt.Verify(providedPassword, hashedPassword);
+        return BCrypt.Net.BCrypt.Verify(passwordHash, password);
     }
 }

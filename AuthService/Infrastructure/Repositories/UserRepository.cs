@@ -8,12 +8,18 @@ public class UserRepository : IUserRepository
         _context = context;
     }
     
-    // CREATE
     public async Task<UserEntity> CreateAsync(UserEntity user)
     {
-        await _context.Users.AddAsync(user);
-        await _context.SaveChangesAsync();
-        return user;
+        try
+        {
+            await _context.Users.AddAsync(user);
+            await _context.SaveChangesAsync();
+            return user;
+        }
+        catch (Exception e)
+        {
+            throw new InvalidOperationException("Erro ao criar usuário", e);
+        }
     }
     
     // READ

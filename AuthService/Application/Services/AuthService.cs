@@ -1,15 +1,23 @@
-﻿namespace Application.Services;
+﻿using Infrastructure.Services;
+
+namespace Application.Services;
 
 public class AuthService: IAuthService
 {
     private readonly IUserRepository _userRepository;
     private readonly IPasswordHasher _passwordHasher;
+    private readonly ITokenService _tokenService;
 
-    public AuthService(IUserRepository userRepository, IPasswordHasher passwordHasher)
+    public AuthService(
+        IUserRepository userRepository, 
+        IPasswordHasher passwordHasher,
+        ITokenService tokenService)
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
+        _tokenService = tokenService;
     }
+    
     public async Task<AuthResultDto> RegisterAsync(RegisterDto registerDto)
     {
         var passwordHash = _passwordHasher.HashPassword(registerDto.Password);
@@ -27,14 +35,49 @@ public class AuthService: IAuthService
         {
             throw new InvalidOperationException("Erro ao criar usuário");
         }
+        
+        // Gerando tokens JWT
+        string token = _tokenService.GenerateToken(userCreated);
+        string refreshToken = _tokenService.GenerateRefreshToken();
+        
         return new AuthResultDto
         {
             UserId = userCreated.Id,
+            Token = token,
+            RefreshToken = refreshToken
         };
     }
 
-    public Task<AuthResultDto> LoginAsync(LoginDto loginData)
+    public async Task<AuthResultDto> LoginAsync(LoginDto loginDto)
     {
-        throw new NotImplementedException();
+        var user = await _userRepository.GetByEmailAsync(loginDto.Email);
+        
+        if (user == null)
+        {
+            throw new UnauthorizedAccessException("E-mail ou senha inválidos");
+        }
+        
+        if (!user.IsActive)
+        {
+            throw new UnauthorizedAccessException("Usuário inativo");
+        }
+        
+        bool isPasswordValid = _passwordHasher.VerifyPassword(user.PasswordHash, loginDto.Password);
+        
+        if (!isPasswordValid)
+        {
+            throw new UnauthorizedAccessException("E-mail ou senha inválidos");
+        }
+        
+        string token = _tokenService.GenerateToken(user);
+        string refreshToken = _tokenService.GenerateRefreshToken();
+        
+        return new AuthResultDto
+        {
+            UserId = user.Id,
+            Token = token,
+            RefreshToken = refreshToken
+        };
     }
 }
+

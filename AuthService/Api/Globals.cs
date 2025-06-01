@@ -12,3 +12,6 @@ global using Domain.Interfaces.Repositories;
 global using Infrastructure.Repositories;
 global using Domain.Interfaces.Services;
 global using Infrastructure.Services;
+global using Microsoft.AspNetCore.Authentication.JwtBearer;
+global using Microsoft.IdentityModel.Tokens;
+global using System.Text;
