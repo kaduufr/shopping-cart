@@ -10,6 +10,20 @@ public class LoginRequest
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
+    private readonly IAuthService _authService;
+    private readonly IValidator<RegisterDto> _registerDtoValidator;
+    private readonly ILogger<AuthController> _logger;
+
+    public AuthController(
+        IValidator<RegisterDto> registerDtoValidator, 
+        IAuthService authService,
+        ILogger<AuthController> logger)
+    {
+        _authService = authService;
+        _registerDtoValidator = registerDtoValidator;
+        _logger = logger;
+    }
+
     [HttpPost("login")]
     public IActionResult Login([FromBody] LoginRequest request)
     {
@@ -32,5 +46,18 @@ public class AuthController : ControllerBase
         }
 
         return Unauthorized("Usuário ou senha incorretos");
+    }
+
+    [HttpPost("register")]
+    public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
+    {
+        var validation = _registerDtoValidator.Validate(registerDto);
+        if (!validation.IsValid)
+        {
+            return BadRequest(validation.Errors.Select(e => e.ErrorMessage));
+        }
+
+        var result = await _authService.RegisterAsync(registerDto);
+        return Ok(result);
     }
 }
