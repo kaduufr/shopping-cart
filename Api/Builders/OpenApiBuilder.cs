@@ -17,4 +17,20 @@ public static class OpenApiBuilder
 
         return builder;
     }
+    
+    public static WebApplication UseOpenApi(this WebApplication app)
+    {
+        if (app.Environment.IsDevelopment())
+        {
+            app.MapOpenApi();
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "API V1");
+                c.RoutePrefix = string.Empty; // Serve Swagger UI at the app's root
+            });
+        }
+
+        return app;
+    }
 }

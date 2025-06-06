@@ -13,7 +13,7 @@ public static class ServicesBuilder
             .AddControllers();
             
         // Configuração do PostgreSQL
-        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Host=localhost;Database=authservice;Username=postgres;Password=postgres";
+        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Host=localhost;Database=shopping_cart;Username=postgres;Password=postgres";
         builder.Services.AddDbContext<AppDbContext>(options =>
             options.UseNpgsql(connectionString));
             
@@ -46,7 +46,6 @@ public static class ServicesBuilder
         
         // Adicionando serviço de autorização
         builder.Services.AddAuthorization();
-        
         return builder;
     }
 }
