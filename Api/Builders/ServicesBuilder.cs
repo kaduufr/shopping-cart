@@ -11,7 +11,7 @@ public static class ServicesBuilder
         builder
             .Services
             .AddControllers();
-            
+        
         // Configuração do PostgreSQL
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Host=localhost;Database=shopping_cart;Username=postgres;Password=postgres";
         builder.Services.AddDbContext<AppDbContext>(options =>
@@ -19,11 +19,13 @@ public static class ServicesBuilder
             
         // Registro de repositórios
         builder.Services.AddScoped<IUserRepository, UserRepository>();
+        builder.Services.AddScoped<IProductRepository, ProductRepository>();
         
         // Registro de serviços
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
         builder.Services.AddScoped<ITokenService, TokenService>();
+        builder.Services.AddScoped<IProductService, ProductService>();
         
         // Configuração de autenticação JWT
         builder.Services.AddAuthentication(options =>

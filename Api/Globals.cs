@@ -1,9 +1,3 @@
-global using Api.Builders;
-global using Microsoft.AspNetCore.Mvc;
-global using Microsoft.EntityFrameworkCore;
-global using Application.Services;
-global using Infrastructure.Data;
-global using Application.Dtos;
 global using Application.Services;
 global using FluentValidation;
 global using Application.Validators;
@@ -15,3 +9,8 @@ global using Infrastructure.Services;
 global using Microsoft.AspNetCore.Authentication.JwtBearer;
 global using Microsoft.IdentityModel.Tokens;
 global using System.Text;
+global using Application.Dtos;
+global using Infrastructure.Data;
+global using Microsoft.EntityFrameworkCore;
+global using System.Reflection;
+global using System;
