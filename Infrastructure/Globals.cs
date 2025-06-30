@@ -15,3 +15,8 @@ global using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 global using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 global using System.Reflection;
 global using System;
+global using Confluent.Kafka;
+global using Domain.Events.Cart;
+global using Microsoft.Extensions.Hosting;
+global using StackExchange.Redis;
+global using System.Text.Json;
