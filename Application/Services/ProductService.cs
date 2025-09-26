@@ -1,17 +1,22 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Services;
 
 public class ProductService : IProductService
 {
     private readonly IProductRepository _repository;
+    private readonly ILogger<ProductService> _logger;
 
-    public ProductService(IProductRepository repository)
+    public ProductService(IProductRepository repository, ILogger<ProductService> logger)
     {
         _repository = repository;
+        _logger = logger;
     }
 
     public async Task<ProductResultDto> CreateAsync(ProductCreateDto dto)
     {
+        _logger.LogInformation("Creating product with name {Name}", dto.Name);
         var entity = new ProductEntity
         {
             Name = dto.Name,
@@ -21,30 +26,51 @@ public class ProductService : IProductService
         };
 
         var result = await _repository.AddAsync(entity);
+        _logger.LogInformation("Product {Name} created with id {Id}", result.Name, result.Id);
         return ToResultDto(result);
     }
 
     public async Task<bool> DeleteAsync(string id)
     {
-        return await _repository.DeleteAsync(id);
+        _logger.LogInformation("Deleting product with id {Id}", id);
+        var result = await _repository.DeleteAsync(id);
+        if (result)
+            _logger.LogInformation("Product with id {Id} deleted", id);
+        else
+            _logger.LogWarning("Product with id {Id} not found", id);
+        return result;
     }
 
     public async Task<IEnumerable<ProductResultDto>> GetAllAsync()
     {
+        _logger.LogInformation("Getting all products");
         var products = await _repository.GetAllAsync();
+        _logger.LogInformation("Found {Count} products", products.Count());
         return products.Select(ToResultDto);
     }
 
-    public async Task<ProductResultDto> GetByIdAsync(string id)
+    public async Task<ProductResultDto?> GetByIdAsync(string id)
     {
+        _logger.LogInformation("Getting product by id {Id}", id);
         var product = await _repository.GetByIdAsync(id);
-        return product == null ? null : ToResultDto(product);
+        if (product == null)
+        {
+            _logger.LogWarning("Product with id {Id} not found", id);
+            return null;
+        }
+        _logger.LogInformation("Found product with id {Id}", id);
+        return ToResultDto(product);
     }
 
-    public async Task<ProductResultDto> UpdateAsync(string id, ProductUpdateDto dto)
+    public async Task<ProductResultDto?> UpdateAsync(string id, ProductUpdateDto dto)
     {
+        _logger.LogInformation("Updating product with id {Id}", id);
         var entity = await _repository.GetByIdAsync(id);
-        if (entity == null) return null;
+        if (entity == null)
+        {
+            _logger.LogWarning("Product with id {Id} not found", id);
+            return null;
+        }
 
         entity.Name = dto.Name;
         entity.Description = dto.Description;
@@ -54,23 +80,38 @@ public class ProductService : IProductService
         entity.UpdatedAt = DateTime.UtcNow;
 
         var result = await _repository.UpdateAsync(entity);
+        _logger.LogInformation("Product with id {Id} updated", id);
         return ToResultDto(result);
     }
-    
-    public async Task<ProductResultDto> UpdatePartialTask(string id, ProductUpdateDto dto)
-    {
-        var entity = await _repository.GetByIdAsync(id);
-        if (entity == null) return null;
 
-        // Update only the fields that are provided in the DTO
-        if (!string.IsNullOrEmpty(dto.Name)) entity.Name = dto.Name;
-        if (!string.IsNullOrEmpty(dto.Description)) entity.Description = dto.Description;
-        if (dto.Value > 0) entity.Value = dto.Value; // Assuming Value should be positive
-        if (!string.IsNullOrEmpty(dto.ImageUrl)) entity.ImageUrl = dto.ImageUrl;
+    public async Task<ProductResultDto?> UpdatePartialAsync(string id, [FromBody]ProductUpdateDto? patchDto)
+    {
+        _logger.LogInformation("Partially updating product with id {Id}", id);
+        var entity = await _repository.GetByIdAsync(id);
+        if (entity == null)
+        {
+            _logger.LogWarning("Product with id {Id} not found", id);
+            return null;
+        }
+
+        var dto = new ProductUpdateDto
+        {
+            Name = patchDto?.Name ?? entity.Name,
+            Description = patchDto?.Description ?? entity.Description,
+            Value = patchDto?.Value ?? entity.Value,
+            ImageUrl = patchDto?.ImageUrl ?? entity.ImageUrl,
+            IsActive = patchDto?.IsActive ?? entity.IsActive
+        };
+
+        entity.Name = dto.Name;
+        entity.Description = dto.Description;
+        entity.Value = dto.Value;
+        entity.ImageUrl = dto.ImageUrl;
         entity.IsActive = dto.IsActive;
         entity.UpdatedAt = DateTime.UtcNow;
 
         var result = await _repository.UpdateAsync(entity);
+        _logger.LogInformation("Product with id {Id} partially updated", id);
         return ToResultDto(result);
     }
 

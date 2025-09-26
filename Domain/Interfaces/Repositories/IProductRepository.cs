@@ -6,7 +6,7 @@ namespace Domain.Interfaces.Repositories
         Task<ProductEntity> AddAsync(ProductEntity product);
         Task<ProductEntity> UpdateAsync(ProductEntity product);
         Task<bool> DeleteAsync(string id);
-        Task<ProductEntity> GetByIdAsync(string id);
+        Task<ProductEntity?> GetByIdAsync(string id);
         Task<IEnumerable<ProductEntity>> GetAllAsync();
     }
 }

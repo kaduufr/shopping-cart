@@ -31,9 +31,10 @@ namespace Infrastructure.Repositories
             return await _context.Products.ToListAsync();
         }
 
-        public async Task<ProductEntity> GetByIdAsync(string id)
+        public async Task<ProductEntity?> GetByIdAsync(string id)
         {
-            return await _context.Products.FindAsync(id);
+            var product = await _context.Products.FindAsync(id);
+            return product ?? null;
         }
 
         public async Task<ProductEntity> UpdateAsync(ProductEntity product)
