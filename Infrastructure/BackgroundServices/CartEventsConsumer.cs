@@ -1,23 +1,30 @@
-
 namespace Infrastructure.BackgroundServices;
 
 public class CartEventsConsumer : BackgroundService
 {
     private readonly IConsumer<Ignore, string> _consumer;
-    private readonly ICartRepository _cartRepository;
+    private ICartRepository _cartRepository;
     private readonly ILogger<CartEventsConsumer> _logger;
+    private readonly IHostApplicationLifetime _applicationLifetime;
 
-    public CartEventsConsumer(IConsumer<Ignore, string> consumer, ICartRepository cartRepository, ILogger<CartEventsConsumer> logger)
+    public CartEventsConsumer(IConsumer<Ignore, string> consumer, ICartRepository cartRepository, ILogger<CartEventsConsumer> logger,
+        IHostApplicationLifetime applicationLifetime)
     {
         _consumer = consumer;
         _cartRepository = cartRepository;
         _logger = logger;
+        _applicationLifetime = applicationLifetime;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _consumer.Subscribe("cart-events");
+        _consumer.Subscribe("worker-cart-events");
+        _logger.LogInformation("Esperando o serviço ser iniciado...");
+        var appStarted = new TaskCompletionSource<object?>();
+        _applicationLifetime.ApplicationStarted.Register(() => appStarted.TrySetResult(null));
+        await appStarted.Task;
 
+        _logger.LogInformation("Iniciando consumidor Kafka...");
         while (!stoppingToken.IsCancellationRequested)
         {
             var consumeResult = _consumer.Consume(stoppingToken);
@@ -40,7 +47,7 @@ public class CartEventsConsumer : BackgroundService
 
         _consumer.Close();
     }
-    
+
     private async Task HandleItemAddedAsync(CartItemAddedEvent? itemAddedEvent)
     {
         try
@@ -55,6 +62,7 @@ public class CartEventsConsumer : BackgroundService
             {
                 cart.Items.Add(new CartItem { ProductId = itemAddedEvent.ProductId, Quantity = itemAddedEvent.Quantity });
             }
+
             await _cartRepository.UpdateCartAsync(cart);
         }
         catch (Exception e)
@@ -63,7 +71,7 @@ public class CartEventsConsumer : BackgroundService
             throw new BadHttpRequestException("Erro ao processar evento ItemAdded", e);
         }
     }
-    
+
     private async Task HandleItemRemovedAsync(CartItemRemovedEvent? itemRemovedEvent)
     {
         try

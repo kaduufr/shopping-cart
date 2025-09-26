@@ -1,4 +1,3 @@
-
 namespace Api.Controllers;
 
 [ApiController]

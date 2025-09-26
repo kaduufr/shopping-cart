@@ -1,4 +1,6 @@
-﻿namespace Application.Validators;
+﻿using FluentValidation;
+
+namespace Application.Validators;
 
 public class RegisterDtoValidator : AbstractValidator<RegisterDto>
 {
