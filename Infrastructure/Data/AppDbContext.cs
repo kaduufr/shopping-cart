@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using Domain.Entities;
+
 namespace Infrastructure.Data;
 
 public class AppDbContext : DbContext
@@ -8,17 +11,18 @@ public class AppDbContext : DbContext
     
     public DbSet<UserEntity> Users { get; set; } = null!;
     public DbSet<ProductEntity> Products { get; set; } = null!;
-    
-    // protected override void OnModelCreating(ModelBuilder modelBuilder)
-    // {
-    //     base.OnModelCreating(modelBuilder);
-    //     // Configure suas entidades aqui
-    //     // modelBuilder.Entity<UserEntity>()
-    //     //     .ToTable("Users", "public")
-    //     //     .HasKey(u => u.Id);
-    //     //
-    //     // modelBuilder.Entity<UserEntity>()
-    //     //     .HasIndex(u => u.Email)
-    //     //     .IsUnique();
-    // }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        
+        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+    }
+
+    public async Task BulkInsertAsync<T>(IEnumerable<T> entities) where T : class
+    {
+        await Set<T>().AddRangeAsync(entities);
+        await SaveChangesAsync();
+    }
 }

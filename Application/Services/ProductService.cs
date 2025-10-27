@@ -30,6 +30,21 @@ public class ProductService : IProductService
         return ToResultDto(result);
     }
 
+    public async Task InsertProductsBulkAsync(List<ProductCreateDto> products)
+    {
+        _logger.LogInformation("Inserting {Count} products in bulk", products.Count);
+        var entities = products.Select(dto => new ProductEntity
+        {
+            Name = dto.Name,
+            Description = dto.Description,
+            Value = dto.Value,
+            ImageUrl = dto.ImageUrl
+        }).ToList();
+
+        await _repository.InsertProductsBulkAsync(entities);
+        _logger.LogInformation("{Count} products inserted in bulk", entities.Count);
+    }
+
     public async Task<bool> DeleteAsync(string id)
     {
         _logger.LogInformation("Deleting product with id {Id}", id);

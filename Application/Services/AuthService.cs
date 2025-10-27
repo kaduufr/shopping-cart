@@ -20,6 +20,11 @@ public class AuthService: IAuthService
     
     public async Task<AuthResultDto> RegisterAsync(RegisterDto registerDto)
     {
+        
+        var existingUser = await _userRepository.GetByEmailAsync(registerDto.Email);
+        if (existingUser != null)
+            throw new InvalidOperationException("E-mail já está em uso");
+        
         var passwordHash = _passwordHasher.HashPassword(registerDto.Password);
 
         var user = new UserEntity
@@ -29,12 +34,10 @@ public class AuthService: IAuthService
             IsActive = true,
             Name = registerDto.Name
         };
-        var userCreated = await _userRepository.CreateAsync(user);
         
+        var userCreated = await _userRepository.CreateAsync(user);
         if (userCreated == null)
-        {
             throw new InvalidOperationException("Erro ao criar usuário");
-        }
         
         // Gerando tokens JWT
         string token = _tokenService.GenerateToken(userCreated);

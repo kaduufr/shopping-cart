@@ -16,6 +16,11 @@ namespace Infrastructure.Repositories
             return product;
         }
 
+        public async Task InsertProductsBulkAsync(List<ProductEntity> products)
+        {
+            await _context.BulkInsertAsync(products);
+        }
+
         public async Task<bool> DeleteAsync(string id)
         {
             var product = await _context.Products.FindAsync(id);

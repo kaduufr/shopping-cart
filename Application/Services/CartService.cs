@@ -20,8 +20,8 @@ public class CartService : ICartService
         {
             _logger.LogInformation("Publishing event to add item to cart");
             var itemAddedEvent = new CartItemAddedEvent { UserEmail = userEmail, ProductId = dto.ProductId, Quantity = dto.Quantity };
-            await _eventPublisher.PublishAsync("cart-events", new { EventType = "ItemAdded", Data = itemAddedEvent });
-            _logger.LogInformation("Event published successfully for user {UserEmail}", userEmail);
+            await _eventPublisher.PublishAsync("worker-cart-events", new { EventType = "ItemAdded", Data = itemAddedEvent });
+            _logger.LogInformation("Event published successfully for user {UserEmail}, ", userEmail);
         }
         catch (Exception e)
         {
@@ -36,7 +36,7 @@ public class CartService : ICartService
         {
             _logger.LogInformation("Publishing event to remove item from cart");
             var itemRemovedEvent = new CartItemRemovedEvent { UserEmail = userEmail, ProductId = dto.ProductId };
-            await _eventPublisher.PublishAsync("cart-events", new { EventType = "ItemRemoved", Data = itemRemovedEvent });
+            await _eventPublisher.PublishAsync("worker-cart-events", new { EventType = "ItemRemoved", Data = itemRemovedEvent });
             _logger.LogInformation("Event published successfully for user {UserEmail}", userEmail);
         }
         catch (Exception e)
@@ -50,6 +50,7 @@ public class CartService : ICartService
     public async Task<CartDto> GetCartAsync(string userEmail)
     {
         _logger.LogInformation("Retrieving cart for user {UserEmail}", userEmail);
+        // Todo: User Class to validate user exists
         var cart = await _cartRepository.GetCartAsync(userEmail);
         return new CartDto
         {

@@ -52,6 +52,7 @@ public class CartEventsConsumer : BackgroundService
     {
         try
         {
+            _logger.LogInformation("Processando evento ItemAdded para o usuário {UserEmail}", itemAddedEvent!.UserEmail);
             var cart = await _cartRepository.GetCartAsync(itemAddedEvent!.UserEmail);
             var existingItem = cart.Items.FirstOrDefault(i => i.ProductId == itemAddedEvent.ProductId);
             if (existingItem != null)
@@ -63,7 +64,9 @@ public class CartEventsConsumer : BackgroundService
                 cart.Items.Add(new CartItem { ProductId = itemAddedEvent.ProductId, Quantity = itemAddedEvent.Quantity });
             }
 
+            _logger.LogInformation("Atualizando carrinho para o usuário {UserEmail}", itemAddedEvent.UserEmail);
             await _cartRepository.UpdateCartAsync(cart);
+            _logger.LogInformation("Carrinho atualizado com sucesso para o usuário {UserEmail}", itemAddedEvent.UserEmail);
         }
         catch (Exception e)
         {

@@ -7,10 +7,12 @@ namespace Api.Controllers;
 public class ProductController : ControllerBase
 {
     private readonly IProductService _productService;
+    private readonly ILogger<ProductController> _logger;
 
-    public ProductController(IProductService productService)
+    public ProductController(IProductService productService, ILogger<ProductController> logger)
     {
         _productService = productService;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -32,10 +34,18 @@ public class ProductController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] ProductCreateDto dto)
+    public async Task<IActionResult> Create([FromBody] List<ProductCreateDto> dto)
     {
-        var product = await _productService.CreateAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
+        try
+        {
+            await _productService.InsertProductsBulkAsync(dto);
+            return CreatedAtAction(nameof(GetAll), null);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error creating products");
+            return StatusCode(500, "Internal server error");
+        }
     }
 
     [HttpPut("{id}")]

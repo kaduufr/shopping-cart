@@ -8,5 +8,6 @@ namespace Domain.Interfaces.Repositories
         Task<bool> DeleteAsync(string id);
         Task<ProductEntity?> GetByIdAsync(string id);
         Task<IEnumerable<ProductEntity>> GetAllAsync();
+        Task InsertProductsBulkAsync(List<ProductEntity> products);
     }
 }

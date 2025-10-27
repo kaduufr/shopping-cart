@@ -15,7 +15,7 @@ public class RedisCartRepository : ICartRepository
         var data = await _redis.StringGetAsync(userEmail);
         if (data.IsNullOrEmpty)
         {
-            return new Cart { Items = []};
+            return new Cart { Items = [], UserEmail = userEmail};
         }
         return JsonSerializer.Deserialize<Cart>(data);
     }
