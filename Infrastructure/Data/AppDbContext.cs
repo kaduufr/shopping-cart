@@ -11,11 +11,12 @@ public class AppDbContext : DbContext
     
     public DbSet<UserEntity> Users { get; set; } = null!;
     public DbSet<ProductEntity> Products { get; set; } = null!;
+    public DbSet<CategoryEntity> Categories { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        
+
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
     }

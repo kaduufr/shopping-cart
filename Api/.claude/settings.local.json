@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/projetos/shopping-cart/Domain/Entities/**)",
+      "Read(//c/projetos/shopping-cart/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
